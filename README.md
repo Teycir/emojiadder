@@ -1,6 +1,8 @@
 # Emoji Adder
 
-This project allows you to add emojis automatically in your text. It autimatically destects with ai the sentiment and the metaphor.
+This project allows you to add emojis automatically in your input text. 
+It automatically detects with ai the sentiment and the metaphor.
+Then adds the corresponding emojis.
 For now works with english language. 
 
 ## Features

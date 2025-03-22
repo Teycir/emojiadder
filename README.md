@@ -1,6 +1,7 @@
 # Emoji Adder
 
-This project enhances your application by integrating emoji functionalities. It serves as a base for adding, managing, and displaying emojis within various contexts of the repository.
+This project allows you to add emojis automatically in your text. It autimatically destects with ai the sentiment and the metaphor.
+For now works with english language. 
 
 ## Features
 - Easy integration of emojis in web and script content.

@@ -1,0 +1,195 @@
+<![CDATA[<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmojiMood: Sentiment Tracker</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            resize: vertical;
+        }
+        .result {
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .emoji {
+            font-size: 100px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .sentiment {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .confidence {
+            font-size: 16px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>EmojiMood: How are you feeling?</h1>
+    
+    <textarea id="input" rows="4" placeholder="Type something to analyze the sentiment..."></textarea>
+    
+    <div class="result">
+        <div class="emoji" id="emoji">😶</div>
+        <div class="sentiment" id="sentiment">Enter some text to get started</div>
+        <div class="confidence" id="confidence"></div>
+    </div>
+    
+    <div id="loading" class="loading" style="display: none;">
+        Loading sentiment analysis model...
+    </div>
+
+    
+    <script>
+        // Elements
+        const inputEl = document.getElementById('input');
+        const emojiEl = document.getElementById('emoji');
+        const sentimentEl = document.getElementById('sentiment');
+        const confidenceEl = document.getElementById('confidence');
+        const loadingEl = document.getElementById('loading');
+        
+        // Model initialization state
+        let pipeline = null;
+        let isModelLoading = false;
+
+        // Sentiment to emoji mapping
+        const sentimentEmojis = {
+            POSITIVE: {
+                high: '🤩', // Very positive (score >= 0.9)
+                medium: '😄', // Moderately positive (score >= 0.75)
+                low: '🙂', // Slightly positive (rest)
+            },
+            NEGATIVE: {
+                high: '😭', // Very negative (score >= 0.9)
+                medium: '😔', // Moderately negative (score >= 0.75)
+                low: '😕', // Slightly negative (rest)
+            }
+        };
+
+        // Load the sentiment analysis model
+        async function loadModel() {
+            if (pipeline !== null || isModelLoading) return;
+            
+            isModelLoading = true;
+            loadingEl.style.display = 'block';
+            
+            try {
+                // First import TensorFlow.js to ensure backend registration
+                await import('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.2.0/+esm');
+                
+                // Then import the pipeline function from transformers
+                const { pipeline: transformersPipeline } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.0/+esm');
+                
+                // Create the sentiment analysis pipeline
+                pipeline = await transformersPipeline(
+                    'sentiment-analysis',
+                    'Xenova/distilbert-base-uncased-finetuned-sst-2-english'
+                );
+                
+                // Model loaded successfully
+                loadingEl.style.display = 'none';
+                
+                // Analyze any text that might have been entered during loading
+                if (inputEl.value.trim() !== '') {
+                    analyzeSentiment(inputEl.value);
+                }
+            } catch (error) {
+                console.error('Error loading model:', error);
+                sentimentEl.textContent = 'Error loading model. Please try again later.';
+                loadingEl.style.display = 'none';
+            }
+            
+            isModelLoading = false;
+        }
+
+        // Analyze text sentiment
+        async function analyzeSentiment(text) {
+            if (!pipeline) {
+                await loadModel();
+                return;
+            }
+            
+            if (text.trim() === '') {
+                emojiEl.textContent = '😶';
+                sentimentEl.textContent = 'Enter some text to get started';
+                confidenceEl.textContent = '';
+                return;
+            }
+            
+            try {
+                const result = await pipeline(text);
+                const sentiment = result[0];
+                
+                // Update the emoji based on sentiment and score
+                const score = sentiment.score;
+                let emojiCategory;
+                
+                if (score >= 0.9) {
+                    emojiCategory = 'high';
+                } else if (score >= 0.75) {
+                    emojiCategory = 'medium';
+                } else {
+                    emojiCategory = 'low';
+                }
+                
+                emojiEl.textContent = sentimentEmojis[sentiment.label][emojiCategory];
+                sentimentEl.textContent = sentiment.label;
+                confidenceEl.textContent = `Confidence: ${Math.round(score * 100)}%`;
+            } catch (error) {
+                console.error('Error analyzing sentiment:', error);
+                emojiEl.textContent = '🤔';
+                sentimentEl.textContent = 'Error analyzing text';
+                confidenceEl.textContent = '';
+            }
+        }
+
+        // Initialize the page
+        window.addEventListener('DOMContentLoaded', () => {
+            // Start loading the model when page loads
+            loadModel();
+            
+            // Add event listener for text input
+            let debounceTimeout;
+            inputEl.addEventListener('input', (e) => {
+                clearTimeout(debounceTimeout);
+                debounceTimeout = setTimeout(() => {
+                    analyzeSentiment(e.target.value);
+                }, 300); // Debounce to prevent too many requests
+            });
+        });
+    </script>
+</body>
+</html>]]>

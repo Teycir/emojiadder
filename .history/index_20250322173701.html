@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Tone Detector</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Import Transformers.js with defer to ensure it's loaded before our modules -->
+    <script src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.14.0" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Text Tone Detector with Emoji Enhancement</h1>
+        <div class="input-section">
+            <textarea id="text-input" placeholder="Enter your text here to analyze its tone and add appropriate emojis..."></textarea>
+            <button id="analyze-btn">Analyze Text</button>
+            <div class="examples">
+                <p>Examples:</p>
+                <button class="example-btn" data-text="I'm so happy with the results! This is amazing.">Positive</button>
+                <button class="example-btn" data-text="This is just okay, nothing special.">Neutral</button>
+                <button class="example-btn" data-text="I'm really disappointed with this service.">Negative</button>
+                <button class="example-btn" data-text="The journey to success is like climbing a mountain.">Metaphor</button>
+            </div>
+        </div>
+        
+        <div class="result-section">
+            <div class="result-item">
+                <h3>Detected Tone:</h3>
+                <p id="tone-result">-</p>
+                <p>Emoji: <span id="tone-emoji">-</span></p>
+            </div>
+            <div class="result-item">
+                <h3>Detected Metaphor:</h3>
+                <p id="metaphor-result">-</p>
+                <p>Emoji: <span id="metaphor-emoji">-</span></p>
+            </div>
+            <div class="result-item enhanced">
+                <h3>Enhanced Text:</h3>
+                <p id="enhanced-text-result">-</p>
+            </div>
+        </div>
+        
+        <div class="loader-container" id="loader">
+            <div class="loader"></div>
+            <p>Loading model... This may take a moment</p>
+        </div>
+    </div>
+    
+    <!-- Note the type="module" to use ES modules (modules are deferred by default) -->
+    <script type="module" src="./script.js"></script>
+</body>
+</html>

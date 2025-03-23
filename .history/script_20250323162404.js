@@ -67,13 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
-    // Check if model is loaded before proceeding
-    if (!toneDetector.isModelLoaded) {
-      alert('Model is still initializing. Please wait a moment before analyzing.');
-      return;
-    }
-    
-    // Disable the analyze button during analysis to prevent duplicate clicks
+    // Optionally disable the analyze button during analysis to prevent duplicate clicks.
     analyzeBtn.disabled = true;
     analyzeBtn.textContent = 'Analyzing...';
     

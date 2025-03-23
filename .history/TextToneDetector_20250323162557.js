@@ -14,14 +14,11 @@ class TextToneDetector {
     this.metaphorUtils = new MetaphorUtils();
     this.emojiUtils = new EmojiUtils();
     
-    // Model loading status - explicitly set to false
+    // Model loading status
     this.isModelLoaded = false;
     
-    // Initialize model asynchronously
-    this.initializeModel().catch(error => {
-      console.error('Failed to initialize model in constructor:', error);
-      // Keep isModelLoaded as false if initialization fails
-    });
+    // Initialize model
+    this.initializeModel();
   }
 
   async initializeModel() {

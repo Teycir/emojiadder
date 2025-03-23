@@ -79,7 +79,6 @@ class TextToneDetector {
       // Split text into paragraphs
       const paragraphs = text.split(/\n+/);
       let enhancedParagraphs = [];
-      
       for (let p = 0; p < paragraphs.length; p++) {
         const paragraph = paragraphs[p];
         const isLastParagraph = p === paragraphs.length - 1;
@@ -138,6 +137,7 @@ class TextToneDetector {
         }
         
         enhancedParagraphs.push(enhancedParagraph);
+      }
       }
       
       const enhancedText = enhancedParagraphs.join('\n');

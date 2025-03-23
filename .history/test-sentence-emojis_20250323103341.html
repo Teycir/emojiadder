@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Sentence Emojis</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-case {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .input, .output {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        h2 {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Emojis After Each Sentence</h1>
+        
+        <div class="test-case">
+            <h3>Test Case 1: Single Sentence</h3>
+            <div class="input">
+                <p><strong>Input:</strong> This is a test sentence.</p>
+            </div>
+            <div class="output" id="output1"></div>
+            <button onclick="runTest('This is a test sentence.', 'output1')">Run Test</button>
+        </div>
+        
+        <div class="test-case">
+            <h3>Test Case 2: Multiple Sentences</h3>
+            <div class="input">
+                <p><strong>Input:</strong> This is the first sentence. This is the second sentence! And this is the third sentence?</p>
+            </div>
+            <div class="output" id="output2"></div>
+            <button onclick="runTest('This is the first sentence. This is the second sentence! And this is the third sentence?', 'output2')">Run Test</button>
+        </div>
+        
+        <div class="test-case">
+            <h3>Test Case 3: Multiple Paragraphs</h3>
+            <div class="input">
+                <p><strong>Input:</strong></p>
+                <pre>
+Paragraph 1, sentence 1. Paragraph 1, sentence 2.
+
+Paragraph 2, with only one sentence!
+
+Paragraph 3, with a question? And an answer.</pre>
+            </div>
+            <div class="output" id="output3"></div>
+            <button onclick="runTest('Paragraph 1, sentence 1. Paragraph 1, sentence 2.\n\nParagraph 2, with only one sentence!\n\nParagraph 3, with a question? And an answer.', 'output3')">Run Test</button>
+        </div>
+        
+        <div class="test-case">
+            <h3>Test Case 4: Custom Text</h3>
+            <textarea id="customInput" rows="5" style="width: 100%; margin-top: 10px; padding: 8px;" placeholder="Enter your custom text here..."></textarea>
+            <div class="output" id="output4"></div>
+            <button onclick="runTest(document.getElementById('customInput').value, 'output4')">Run Test</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import TextToneDetector from './TextToneDetector.js';
+        
+        window.runTest = async function(input, outputId) {
+            const outputElement = document.getElementById(outputId);
+            outputElement.innerHTML = '<p><strong>Processing...</strong></p>';
+            
+            try {
+                const toneDetector = new TextToneDetector();
+                
+                // Wait for the model to load
+                if (!toneDetector.isModelLoaded) {
+                    outputElement.innerHTML = '<p><strong>Loading model...</strong></p>';
+                    await new Promise(resolve => {
+                        const checkLoaded = () => {
+                            if (toneDetector.isModelLoaded) {
+                                resolve();
+                            } else {
+                                setTimeout(checkLoaded, 500);
+                            }
+                        };
+                        checkLoaded();
+                    });
+                }
+                
+                const result = await toneDetector.analyze(input);
+                outputElement.innerHTML = `<p><strong>Output:</strong></p><pre>${result.enhancedText}</pre>`;
+            } catch (error) {
+                outputElement.innerHTML = `<p><strong>Error:</strong> ${error.message}</p>`;
+                console.error(error);
+            }
+        };
+    </script>
+</body>
+</html>

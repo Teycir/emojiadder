@@ -89,22 +89,34 @@ Paragraph 3, with a question? And an answer.</pre>
     <script type="module">
         import TextToneDetector from './TextToneDetector.js';
         
-        // Add event listener to limit customInput to 200 lines
-        document.addEventListener('DOMContentLoaded', function() {
-            const customInput = document.getElementById('customInput');
-            if (customInput) {
-                customInput.addEventListener('input', function() {
-                    const lines = this.value.split('\n');
-                    if (lines.length > 400) {
-                        this.value = lines.slice(0, 400).join('\n');
-                    }
-                });
-            }
-        });
+        // Function to count words in a text
+        function countWords(text) {
+            return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+        }
+
+        // Function to show word limit popup
+        function showWordLimitPopup() {
+            const popup = document.createElement('div');
+            popup.className = 'word-limit-popup';
+            popup.innerHTML = '<div class="popup-content"><p>Text exceeds the 3000 word limit!</p><button class="close-popup">OK</button></div>';
+            document.body.appendChild(popup);
+            
+            document.querySelector('.close-popup').addEventListener('click', function() {
+                popup.remove();
+            });
+        }
 
         window.runTest = async function(input, outputId) {
             const outputElement = document.getElementById(outputId);
             outputElement.innerHTML = '<p><strong>Processing...</strong></p>';
+            
+            // Check if text exceeds 3000 words
+            const wordCount = countWords(input);
+            if (wordCount > 3000) {
+                outputElement.innerHTML = '<p><strong>Error:</strong> Text exceeds the 3000 word limit!</p>';
+                showWordLimitPopup();
+                return;
+            }
             
             try {
                 const toneDetector = new TextToneDetector();

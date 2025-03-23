@@ -25,13 +25,22 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('Creating TextToneDetector instance');
   const toneDetector = new TextToneDetector();
 
-  // Add event listener to limit textarea to 200 lines
-  textInput.addEventListener('input', function() {
-    const lines = this.value.split('\n');
-    if (lines.length > 400) {
-      this.value = lines.slice(0, 400).join('\n');
-    }
-  });
+  // Function to count words in a text
+  function countWords(text) {
+    return text.trim().split(/\\s+/).filter(word => word.length > 0).length;
+  }
+
+  // Function to show word limit popup
+  function showWordLimitPopup() {
+    const popup = document.createElement('div');
+    popup.className = 'word-limit-popup';
+    popup.innerHTML = '<div class="popup-content"><p>Text exceeds the 3000 word limit!</p><button class="close-popup">OK</button></div>';
+    document.body.appendChild(popup);
+    
+    document.querySelector('.close-popup').addEventListener('click', function() {
+      popup.remove();
+    });
+  }
 
   // Analyze text function
   async function analyzeText() {
@@ -39,6 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (!text) {
       alert('Please enter some text to analyze.');
+      return;
+    }
+    
+    // Check if text exceeds 3000 words
+    const wordCount = countWords(text);
+    if (wordCount > 3000) {
+      showWordLimitPopup();
       return;
     }
     

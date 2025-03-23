@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add event listener to limit textarea to 200 lines
   textInput.addEventListener('input', function() {
     const lines = this.value.split('\n');
-    if (lines.length > 400) {
-      this.value = lines.slice(0, 400).join('\n');
+    if (lines.length > 200) {
+      this.value = lines.slice(0, 200).join('\n');
     }
   });
 

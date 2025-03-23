@@ -95,8 +95,8 @@ Paragraph 3, with a question? And an answer.</pre>
             if (customInput) {
                 customInput.addEventListener('input', function() {
                     const lines = this.value.split('\n');
-                    if (lines.length > 400) {
-                        this.value = lines.slice(0, 400).join('\n');
+                    if (lines.length > 200) {
+                        this.value = lines.slice(0, 200).join('\n');
                     }
                 });
             }

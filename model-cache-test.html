@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Caching Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        .log { background: #f5f5f5; padding: 10px; border-radius: 5px; margin-top: 10px; max-height: 400px; overflow-y: auto; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        .warn { color: orange; }
+        button { padding: 10px 15px; margin: 10px 0; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Model Caching Test</h1>
+    <p>This page demonstrates the caching of the sentiment model.</p>
+    
+    <button id="load-first">Load First Instance</button>
+    <button id="load-second">Load Second Instance</button>
+    <button id="analyze-text">Analyze Text</button>
+    <button id="clear-log">Clear Log</button>
+    
+    <div id="log-container" class="log"></div>
+    
+    <script type="module">
+        import SentimentModel from './models/SentimentModel.js';
+        
+        const logContainer = document.getElementById('log-container');
+        const loadFirstBtn = document.getElementById('load-first');
+        const loadSecondBtn = document.getElementById('load-second');
+        const analyzeTextBtn = document.getElementById('analyze-text');
+        const clearLogBtn = document.getElementById('clear-log');
+        
+        // Log messages with timestamps
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span>[${timestamp}]</span> ${message}`;
+            logEntry.className = type;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            console.log(`[${type}] ${message}`);
+        }
+        
+        // First instance - should load the model from scratch
+        let firstInstance = null;
+        loadFirstBtn.addEventListener('click', async () => {
+            loadFirstBtn.disabled = true;
+            log('Creating first SentimentModel instance...', 'info');
+            const startTime = performance.now();
+            
+            try {
+                firstInstance = new SentimentModel();
+                log(`First instance created in ${(performance.now() - startTime).toFixed(2)}ms`, 'info');
+                
+                log('Initializing first instance...', 'info');
+                const initStartTime = performance.now();
+                await firstInstance.initialize();
+                
+                const initDuration = performance.now() - initStartTime;
+                log(`First instance initialized in ${initDuration.toFixed(2)}ms`, 'success');
+                loadSecondBtn.disabled = false;
+                analyzeTextBtn.disabled = false;
+            } catch (error) {
+                log(`Error creating first instance: ${error.message}`, 'error');
+                loadFirstBtn.disabled = false;
+            }
+        });
+        
+        // Second instance - should use the cached model
+        let secondInstance = null;
+        loadSecondBtn.addEventListener('click', async () => {
+            loadSecondBtn.disabled = true;
+            log('Creating second SentimentModel instance...', 'info');
+            const startTime = performance.now();
+            
+            try {
+                secondInstance = new SentimentModel();
+                log(`Second instance created in ${(performance.now() - startTime).toFixed(2)}ms`, 'info');
+                
+                log('Initializing second instance...', 'info');
+                const initStartTime = performance.now();
+                await secondInstance.initialize();
+                
+                const initDuration = performance.now() - initStartTime;
+                log(`Second instance initialized in ${initDuration.toFixed(2)}ms`, 'success');
+                
+                // Validate that both instances share the same pipeline
+                if (firstInstance.pipeline === secondInstance.pipeline) {
+                    log('SUCCESS: Both instances share the same pipeline object!', 'success');
+                } else {
+                    log('ERROR: Instances have different pipeline objects!', 'error');
+                }
+            } catch (error) {
+                log(`Error creating second instance: ${error.message}`, 'error');
+                loadSecondBtn.disabled = false;
+            }
+        });
+        
+        // Test analyzing text with both instances
+        analyzeTextBtn.addEventListener('click', async () => {
+            if (!firstInstance || !secondInstance) {
+                log('Please load both instances first', 'warn');
+                return;
+            }
+            
+            const testText = "I'm very happy today!";
+            log(`Analyzing text: "${testText}"`, 'info');
+            
+            try {
+                const result1 = await firstInstance.analyze(testText);
+                log(`First instance result: ${JSON.stringify(result1)}`, 'success');
+                
+                const result2 = await secondInstance.analyze(testText);
+                log(`Second instance result: ${JSON.stringify(result2)}`, 'success');
+                
+                if (JSON.stringify(result1) === JSON.stringify(result2)) {
+                    log('SUCCESS: Both instances produced the same result!', 'success');
+                } else {
+                    log('WARNING: Instances produced different results!', 'warn');
+                }
+            } catch (error) {
+                log(`Error analyzing text: ${error.message}`, 'error');
+            }
+        });
+        
+        // Clear log
+        clearLogBtn.addEventListener('click', () => {
+            logContainer.innerHTML = '';
+            log('Log cleared', 'info');
+        });
+        
+        // Initial log
+        log('Page loaded. Click "Load First Instance" to begin the test.', 'info');
+        loadSecondBtn.disabled = true;
+        analyzeTextBtn.disabled = true;
+    </script>
+</body>
+</html>

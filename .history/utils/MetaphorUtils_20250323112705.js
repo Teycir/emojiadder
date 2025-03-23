@@ -292,21 +292,7 @@ class MetaphorUtils {
         const cleanWord = word.replace(/[.,!?;:]/g, '');
         
         for (const concept in this.metaphorKeywords) {
-          const keywords = this.metaphorKeywords[concept];
-          let found = false;
-          if (Array.isArray(keywords)) {
-            if (keywords.includes(cleanWord)) {
-              found = true;
-            }
-          } else {
-            for (const lang in keywords) {
-              if (keywords[lang].includes(cleanWord)) {
-                found = true;
-                break;
-              }
-            }
-          }
-          if (found) {
+          if (this.metaphorKeywords[concept].includes(cleanWord)) {
             matches[concept] = (matches[concept] || 0) + 1;
           }
         }
